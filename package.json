@@ -1,0 +1,46 @@
+{
+  "name": "tele-immich",
+  "version": "1.0.0",
+  "description": "A Cli Telegram Backup Immich Syncer",
+  "keywords": [
+    "telegram",
+    "tg-backup",
+    "immich",
+    "immich-tool",
+    "cli-tool"
+  ],
+  "homepage": "https://github.com/dev-mkm/TeleImmich#readme",
+  "bugs": {
+    "url": "https://github.com/dev-mkm/TeleImmich/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-mkm/TeleImmich.git"
+  },
+  "license": "MIT",
+  "author": "dev-mkm",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "TeleImmich": "./app.js"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.0.2",
+    "axios": "^1.13.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
+    "exiftool-vendored": "^34.0.0",
+    "luxon": "^3.7.2",
+    "open": "^11.0.0",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7",
+    "yocto-spinner": "^1.0.0"
+  },
+  "devDependencies": {
+    "prettier": "3.7.4"
+  }
+}
