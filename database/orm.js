@@ -39,10 +39,6 @@ export const MediaSync = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    filePath: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     hash: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -54,7 +50,7 @@ export const MediaSync = sequelize.define(
     },
     mediaId: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     existed: {
       type: DataTypes.BOOLEAN,
@@ -67,13 +63,13 @@ export const MediaSync = sequelize.define(
       defaultValue: false,
     },
   },
-  {}
+  {},
 );
 
 async function initDB() {
   await Promise.all(
     readFileSync(join(import.meta.dirname, "migration.sql"), "utf8")
       .split(";")
-      .map((query) => sequelize.query(query))
+      .map((query) => sequelize.query(query)),
   );
 }

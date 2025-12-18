@@ -2,13 +2,13 @@ CREATE TABLE IF NOT EXISTS MediaSyncs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     chatId INTEGER NOT NULL,
     messageId INTEGER NOT NULL,
-    filePath TEXT NOT NULL,
     hash TEXT NOT NULL,
     backupType TEXT NOT NULL DEFAULT 'Immich',
-    mediaId TEXT NOT NULL,
+    mediaId TEXT,
     existed BOOLEAN NOT NULL DEFAULT 0,
     updated BOOLEAN NOT NULL DEFAULT 0,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(chatId, messageId)
+    UNIQUE(chatId, hash)
 )

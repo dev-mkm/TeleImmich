@@ -5,7 +5,7 @@ import { basename } from "path";
 export class immich {
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.IMMICH_URL,
+      baseURL: process.env.IMMICH_URL + "/api/",
       headers: {
         "x-api-key": process.env.IMMICH_API_KEY,
       },
@@ -31,14 +31,14 @@ export class immich {
     device_id,
     created_at,
     file_name = null,
-    visibility = null
+    visibility = null,
   ) {
     const form = new FormData();
     const file = readFileSync(file_path);
     form.append(
       "assetData",
       new Blob([file], { type: "application/octet-stream" }),
-      file_name ? file_name : basename(file_path)
+      file_name ? file_name : basename(file_path),
     );
     form.append("deviceAssetId", device_asset_id);
     form.append("deviceId", device_id);
