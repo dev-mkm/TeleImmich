@@ -1,6 +1,6 @@
 {
   "name": "tele-immich",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A Cli Telegram Backup Immich Syncer",
   "keywords": [
     "telegram",
