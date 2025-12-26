@@ -1,7 +1,3 @@
-Here’s a clean, ready-to-use **README.md** for your CLI tool based on the commands and `package.json` you shared. You can copy-paste this directly into your repo.
-
----
-
 # TeleImmich
 
 **TeleImmich** is a CLI tool that syncs exported **Telegram backups** to an **Immich** instance, preserving media metadata and dates with flexible configuration options.
