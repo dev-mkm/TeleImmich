@@ -36,6 +36,16 @@ After installation, the CLI will be available as:
 TeleImmich
 ```
 
+### Usage with `npx` (No Installation Required)
+
+You can run **TeleImmich** directly using `npx` without installing it globally.
+
+```bash
+npx tele-immich <command> [options]
+```
+
+This will download and run the latest version automatically.
+
 ---
 
 ## Basic Usage
