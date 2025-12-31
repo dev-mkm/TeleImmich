@@ -15,7 +15,7 @@ if (existsSync(join(import.meta.dirname, ".env"))) {
 program
   .name("TeleImmich")
   .description("A Cli Telegram Backup Immich Syncer")
-  .version("1.2.0");
+  .version("1.2.4");
 
 program
   .command("upload")
