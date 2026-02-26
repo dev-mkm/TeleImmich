@@ -61,6 +61,9 @@ export class backupHandler {
   }
 
   async media_map(message) {
+    if (message.photo) {
+      message.file = message.photo;
+    }
     message.path = this.path.slice(0, -11) + message.file;
 
     if (this.hash[message.file]) {
@@ -99,16 +102,15 @@ export class backupHandler {
           if (
             message.mime_type &&
             message.file !=
-            "(File exceeds maximum size. Change data exporting settings to download.)"
+            "(File exceeds maximum size. Change data exporting settings to download.)" &&
+            message.file != "(File not included. Change data exporting settings to download.)"
           ) {
             if (this.file_paths[message.file]) {
               return false;
             } else if (
               message.media_type == "video_file" ||
               message.media_type == "video_message" ||
-              message.mime_type == "image/png" ||
-              message.mime_type == "image/jpeg" ||
-              message.mime_type == "image/heic"
+              (message.mime_type.match(/^(video|image)\//) && message.media_type != 'animation' && message.media_type != 'sticker')
             ) {
               if (existsSync(this.path.slice(0, -11) + message.file)) {
                 this.file_paths[message.file] = true;
@@ -121,7 +123,17 @@ export class backupHandler {
               return false;
             }
           } else {
-            return false;
+            if (message.photo && !this.file_paths[message.photo]) {
+              if (existsSync(this.path.slice(0, -11) + message.photo)) {
+                this.file_paths[message.photo] = true;
+
+                return true;
+              } else {
+                return false
+              }
+            } else {
+              return false;
+            }
           }
         })
         .map((message) => this.media_map(message)),
