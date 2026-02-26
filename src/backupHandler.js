@@ -1,4 +1,4 @@
-import { createReadStream, readFileSync } from "fs";
+import { createReadStream, existsSync, readFileSync } from "fs";
 import { MediaSync } from "../database/orm.js";
 import { createHash } from "crypto";
 import { immich } from "./immich.js";
@@ -99,7 +99,7 @@ export class backupHandler {
           if (
             message.mime_type &&
             message.file !=
-              "(File exceeds maximum size. Change data exporting settings to download.)"
+            "(File exceeds maximum size. Change data exporting settings to download.)"
           ) {
             if (this.file_paths[message.file]) {
               return false;
@@ -110,9 +110,13 @@ export class backupHandler {
               message.mime_type == "image/jpeg" ||
               message.mime_type == "image/heic"
             ) {
-              this.file_paths[message.file] = true;
+              if (existsSync(this.path.slice(0, -11) + message.file)) {
+                this.file_paths[message.file] = true;
 
-              return true;
+                return true;
+              } else {
+                return false
+              }
             } else {
               return false;
             }
@@ -160,11 +164,11 @@ export class backupHandler {
           if (options.vidOriginalDate || options.vidTelegramDate) {
             date = options.vidOriginalDate
               ? DateTime.fromJSDate(new Date(stat.MediaCreateDate)).setZone(
-                  process.env.TZ,
-                )
+                process.env.TZ,
+              )
               : DateTime.fromSeconds(parseInt(message.date_unixtime)).setZone(
-                  process.env.TZ,
-                );
+                process.env.TZ,
+              );
           } else {
             spinner.stop();
             var datechoice = "";
@@ -212,11 +216,11 @@ export class backupHandler {
             date =
               datechoice == "tg"
                 ? DateTime.fromSeconds(parseInt(message.date_unixtime)).setZone(
-                    process.env.TZ,
-                  )
+                  process.env.TZ,
+                )
                 : DateTime.fromJSDate(new Date(stat.MediaCreateDate)).setZone(
-                    process.env.TZ,
-                  );
+                  process.env.TZ,
+                );
           }
         }
       }
@@ -228,17 +232,17 @@ export class backupHandler {
               status[message.id.toString()].assetId,
             );
           } catch (error) {
-                      if (! options.dryRun) {
-                                    await MediaSync.create({
-              chatId: this.data.id,
-              messageId: message.id,
-              filePath: message.path,
-              hash: message.hash,
-              mediaId: status[message.id.toString()].assetId,
-              existed: true,
-            });
+            if (!options.dryRun) {
+              await MediaSync.create({
+                chatId: this.data.id,
+                messageId: message.id,
+                filePath: message.path,
+                hash: message.hash,
+                mediaId: status[message.id.toString()].assetId,
+                existed: true,
+              });
 
-                      }
+            }
             continue;
           }
           const isOlder =
@@ -260,12 +264,29 @@ export class backupHandler {
             if (options.updateDate || options.noUpdateDate) {
               if (options.updateDate) {
                 try {
-                                        if (! options.dryRun) {
+                  if (!options.dryRun) {
 
-                  await immichClient.updateMedia(
-                    [status[message.id.toString()].assetId],
-                    date,
-                  );
+                    await immichClient.updateMedia(
+                      [status[message.id.toString()].assetId],
+                      date,
+                    );
+                    await MediaSync.create({
+                      chatId: this.data.id,
+                      messageId: message.id,
+                      filePath: message.path,
+                      hash: message.hash,
+                      mediaId: status[message.id.toString()].assetId,
+                      existed: true,
+                      updated: true,
+                    });
+                  }
+                  updated++;
+                } catch (error) {
+                  console.log(error);
+                  existed++;
+                }
+              } else {
+                if (!options.dryRun) {
                   await MediaSync.create({
                     chatId: this.data.id,
                     messageId: message.id,
@@ -273,26 +294,9 @@ export class backupHandler {
                     hash: message.hash,
                     mediaId: status[message.id.toString()].assetId,
                     existed: true,
-                    updated: true,
                   });
                 }
-                  updated ++;
-                } catch (error) {
-                  console.log(error);
-                  existed ++;
-                }
-              } else {
-                                      if (! options.dryRun) {
-                await MediaSync.create({
-                  chatId: this.data.id,
-                  messageId: message.id,
-                  filePath: message.path,
-                  hash: message.hash,
-                  mediaId: status[message.id.toString()].assetId,
-                  existed: true,
-                });
-              }
-                existed ++;
+                existed++;
               }
             } else {
               spinner.warning(
@@ -307,7 +311,7 @@ export class backupHandler {
               );
               console.log(
                 chalk.cyan(" Media Info:") +
-                  chalk.magentaBright(...info, ...diff, "\n"),
+                chalk.magentaBright(...info, ...diff, "\n"),
               );
               var update = await confirm({
                 message: `[${i}/${max}] Update media's date to telegram's date?`,
@@ -315,11 +319,28 @@ export class backupHandler {
               });
               if (update) {
                 try {
-                                        if (! options.dryRun) {
-                  await immichClient.updateMedia(
-                    [status[message.id.toString()].assetId],
-                    date,
-                  );
+                  if (!options.dryRun) {
+                    await immichClient.updateMedia(
+                      [status[message.id.toString()].assetId],
+                      date,
+                    );
+                    await MediaSync.create({
+                      chatId: this.data.id,
+                      messageId: message.id,
+                      filePath: message.path,
+                      hash: message.hash,
+                      mediaId: status[message.id.toString()].assetId,
+                      existed: true,
+                      updated: true,
+                    });
+                  }
+                  updated++;
+                } catch (error) {
+                  console.log(error);
+                  existed++;
+                }
+              } else {
+                if (!options.dryRun) {
                   await MediaSync.create({
                     chatId: this.data.id,
                     messageId: message.id,
@@ -327,51 +348,34 @@ export class backupHandler {
                     hash: message.hash,
                     mediaId: status[message.id.toString()].assetId,
                     existed: true,
-                    updated: true,
                   });
                 }
-                  updated ++;
-                } catch (error) {
-                  console.log(error);
-                  existed ++;
-                }
-              } else {
-                                      if (! options.dryRun) {
-                await MediaSync.create({
-                  chatId: this.data.id,
-                  messageId: message.id,
-                  filePath: message.path,
-                  hash: message.hash,
-                  mediaId: status[message.id.toString()].assetId,
-                  existed: true,
-                });
-              }
-                existed ++;
+                existed++;
               }
               spinner.start(`Uploading ${i} / ${max}`);
             }
           } else {
-                                  if (! options.dryRun) {
-            await MediaSync.create({
-              chatId: this.data.id,
-              messageId: message.id,
-              filePath: message.path,
-              hash: message.hash,
-              mediaId: status[message.id.toString()].assetId,
-              existed: true,
-            });
-          }
-            existed ++;
+            if (!options.dryRun) {
+              await MediaSync.create({
+                chatId: this.data.id,
+                messageId: message.id,
+                filePath: message.path,
+                hash: message.hash,
+                mediaId: status[message.id.toString()].assetId,
+                existed: true,
+              });
+            }
+            existed++;
           }
         } else {
           spinner.warning(message.action);
           console.log(status[message.id.toString()]);
           spinner.start(`Uploading ${i} / ${max}`);
-          existed ++;
+          existed++;
         }
       } else {
         try {
-          if (! options.dryRun) {
+          if (!options.dryRun) {
             const uploaded = await immichClient.uploadMedia(
               message.path,
               message.id.toString(),
@@ -388,15 +392,15 @@ export class backupHandler {
               mediaId: uploaded.id,
             });
           }
-          uploaded_count ++;
+          uploaded_count++;
         } catch (error) {
           console.log(error);
-          not_uploaded ++;
+          not_uploaded++;
         }
       }
     }
     spinner.success("Uploading Completed");
-    if (ids.length > 0 && ! options.dryRun) {
+    if (ids.length > 0 && !options.dryRun) {
       const albumName = options.album ? options.album : await input({
         message:
           "Enter the name for the album (this will only create a new album if there is no album with the entered name)",
